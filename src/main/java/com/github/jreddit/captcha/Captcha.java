@@ -3,8 +3,8 @@ package com.github.jreddit.captcha;
 import com.github.jreddit.user.User;
 import com.github.jreddit.utils.ApiEndpointUtils;
 import com.github.jreddit.utils.restclient.RestClient;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -36,8 +36,8 @@ public class Captcha {
         String iden = null;
 
         try {
-            JSONObject obj = (JSONObject) restClient.post(null, ApiEndpointUtils.CAPTCHA_NEW, user.getCookie()).getResponseObject();
-            iden = (String) ((JSONArray) ((JSONArray) ((JSONArray) obj.get("jquery")).get(11)).get(3)).get(0);
+            JsonObject obj = (JsonObject) restClient.post(null, ApiEndpointUtils.CAPTCHA_NEW, user.getCookie()).getResponseObject();
+            iden = ((JsonArray) ((JsonArray) ((JsonArray) obj.get("jquery")).get(11)).get(3)).get(0).toString();
             System.out.println("Received CAPTCHA iden: " + iden);
 
             captchaDownloader.getCaptchaImage(iden);

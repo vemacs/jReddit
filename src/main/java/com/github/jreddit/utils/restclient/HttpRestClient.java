@@ -4,6 +4,7 @@ import com.github.jreddit.exception.InvalidURIException;
 import com.github.jreddit.utils.ApiEndpointUtils;
 import com.github.jreddit.utils.restclient.methodbuilders.HttpGetMethodBuilder;
 import com.github.jreddit.utils.restclient.methodbuilders.HttpPostMethodBuilder;
+import com.google.gson.JsonParseException;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -15,7 +16,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -65,13 +65,13 @@ public class HttpRestClient implements RestClient {
         catch (IOException e) {
             System.err.println("Error making GET request to URL path: " + urlPath);
         }
-        catch (ParseException e) {
+        catch (JsonParseException e) {
             System.err.println("Error parsing response from POST request for URL path: " + urlPath);
         }
         return null;
     }
 
-    public Response get(HttpGetMethodBuilder getMethodBuilder) throws IOException, ParseException, InvalidURIException {
+    public Response get(HttpGetMethodBuilder getMethodBuilder) throws IOException, JsonParseException, InvalidURIException {
         getMethodBuilder.withUserAgent(userAgent);
         HttpGet request = getMethodBuilder.build();
 
@@ -99,17 +99,17 @@ public class HttpRestClient implements RestClient {
         catch (IOException e) {
             System.err.println("Error making GET request to URL path: " + urlPath);
         }
-        catch (ParseException e) {
+        catch (JsonParseException e) {
             System.err.println("Error parsing response from POST request for URL path: " + urlPath);
         }
         return null;
     }
 
-    public Response post(HttpPostMethodBuilder postMethodBuilder, NameValuePair... params) throws IOException, ParseException {
+    public Response post(HttpPostMethodBuilder postMethodBuilder, NameValuePair... params) throws IOException, JsonParseException {
         return post(postMethodBuilder, Arrays.asList(params));
     }
 
-    public Response post(HttpPostMethodBuilder postMethodBuilder, List<NameValuePair> params) throws IOException, ParseException {
+    public Response post(HttpPostMethodBuilder postMethodBuilder, List<NameValuePair> params) throws IOException, JsonParseException {
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, Consts.UTF_8);
 
         postMethodBuilder.withUserAgent(userAgent);

@@ -1,24 +1,24 @@
 package com.github.jreddit.utils.restclient;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class RestResponseHandler implements ResponseHandler<Response> {
 
-    private final JSONParser jsonParser;
+    private final JsonParser jsonParser;
 
     public RestResponseHandler() {
-        this.jsonParser = new JSONParser();
+        this.jsonParser = new JsonParser();
     }
 
-    public RestResponseHandler(JSONParser jsonParser) {
+    public RestResponseHandler(JsonParser jsonParser) {
         this.jsonParser = jsonParser;
     }
 
@@ -27,13 +27,13 @@ public class RestResponseHandler implements ResponseHandler<Response> {
         try {
             return parse(response);
         }
-        catch (ParseException e) {
+        catch (JsonParseException e) {
             System.err.println("Error parsing response from Reddit");
         }
         return null;
     }
 
-    private Response parse(HttpResponse httpResponse) throws IOException, ParseException {
+    private Response parse(HttpResponse httpResponse) throws IOException, JsonParseException {
         InputStream responseStream = httpResponse.getEntity().getContent();
         String content = IOUtils.toString(responseStream, "UTF-8");
         Object responseObject = jsonParser.parse(content);

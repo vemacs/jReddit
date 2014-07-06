@@ -1,7 +1,7 @@
 package com.github.jreddit.comment;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class CommentMapper {
      * @param obj JSON object to map
      * @return <code>Comment</code> object instance, or NULL if an error occurs during mapping
      */
-    public static Comment mapMessage(JSONObject obj) {
+    public static Comment mapMessage(JsonObject obj) {
         Comment comment = null;
 
         try {
@@ -39,7 +39,7 @@ public class CommentMapper {
             comment.setDownvotes(safeJsonToInteger(obj.get("downs")));
 
         } catch (Exception e) {
-            System.err.println("Error mapping JSONObject to Comment");
+            System.err.println("Error mapping JsonObject to Comment");
         }
 
         return comment;
@@ -52,13 +52,13 @@ public class CommentMapper {
             return comments;
         try
         {
-            JSONObject jsonReplies = (JSONObject) replies;
-            JSONObject data = (JSONObject) jsonReplies.get("data");
-            JSONArray kids = (JSONArray) data.get("children");
+            JsonObject jsonReplies = (JsonObject) replies;
+            JsonObject data = (JsonObject) jsonReplies.get("data");
+            JsonArray kids = (JsonArray) data.get("children");
             for (Object o : kids)
             {
-                JSONObject o2 = (JSONObject) o;
-                Comment c = mapMessage(  (JSONObject) o2.get("data") );
+                JsonObject o2 = (JsonObject) o;
+                Comment c = mapMessage(  (JsonObject) o2.get("data") );
                 comments.add(c);
             }
             return comments;

@@ -4,8 +4,8 @@ import com.github.jreddit.user.User;
 import com.github.jreddit.utils.ApiEndpointUtils;
 import com.github.jreddit.utils.Kind;
 import com.github.jreddit.utils.restclient.RestClient;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +41,9 @@ public class Messages {
         List<Message> messages = null;
 
         try {
-            JSONObject object = (JSONObject)  restClient.get(String.format(ApiEndpointUtils.MESSAGE_GET, messageType.getValue()), user.getCookie()).getResponseObject();
-            JSONObject data = (JSONObject) object.get("data");
-            messages = buildList((JSONArray) data.get("children"), maxMessages);
+            JsonObject object = (JsonObject)  restClient.get(String.format(ApiEndpointUtils.MESSAGE_GET, messageType.getValue()), user.getCookie()).getResponseObject();
+            JsonObject data = (JsonObject) object.get("data");
+            messages = buildList((JsonArray) data.get("children"), maxMessages);
 
         } catch (Exception e) {
             System.err.println("Error retrieving messages of type " + messageType);
@@ -71,19 +71,19 @@ public class Messages {
         }
 
         try {
-            JSONObject object = (JSONObject) restClient.post("captcha=" + captchaTry + "&iden=" + iden +
+            JsonObject object = (JsonObject) restClient.post("captcha=" + captchaTry + "&iden=" + iden +
                     "&subject=" + subject + "&text=" + text + "&to=" + to +
                     "&uh=" + user.getModhash(),
                     ApiEndpointUtils.MESSAGE_COMPOSE, user.getCookie()).getResponseObject();
 
-            if (object.toJSONString().contains(".error.USER_REQUIRED")) {
+            if (object.toString().contains(".error.USER_REQUIRED")) {
                 System.err.println("Please login first.");
-            } else if (object.toJSONString().contains(".error.RATELIMIT.field-ratelimit")) {
+            } else if (object.toString().contains(".error.RATELIMIT.field-ratelimit")) {
                 System.err.println("You are doing that too much.");
-            } else if (object.toJSONString().contains(".error.BAD_CAPTCHA.field-captcha")) {
+            } else if (object.toString().contains(".error.BAD_CAPTCHA.field-captcha")) {
                 System.err.println("Invalid captcha submitted.");
             } else {
-                System.out.println(((JSONArray) ((JSONArray) ((JSONArray) object.get("jquery")).get(14)).get(3)).get(0));   // prints a message confirming delivery
+                System.out.println(((JsonArray) ((JsonArray) ((JsonArray) object.get("jquery")).get(14)).get(3)).get(0));   // prints a message confirming delivery
                 return true;
             }
 
@@ -127,24 +127,24 @@ public class Messages {
     /**
      * Builds a list of Messages from the passed array of children.
      */
-    private List<Message> buildList(JSONArray children, int maxMessages) {
+    private List<Message> buildList(JsonArray children, int maxMessages) {
         List<Message> messages = new ArrayList<Message>();
-        JSONObject obj;
+        JsonObject obj;
 
         if (maxMessages < 0 || maxMessages > children.size()) {
             maxMessages = children.size();
         }
         for (int i = 0; i < maxMessages; i++) {
-            obj = (JSONObject) children.get(i);
+            obj = (JsonObject) children.get(i);
 
             // If the kind of the object is a MESSAGE
             if (obj.get("kind").toString().startsWith(Kind.MESSAGE.getValue())) {
-                obj = (JSONObject) obj.get("data");
+                obj = (JsonObject) obj.get("data");
                 messages.add(MessageMapper.mapMessage(obj));
 
                 // Else it is a comment
             } else {
-                obj = (JSONObject) obj.get("data");
+                obj = (JsonObject) obj.get("data");
                 MessageComment messageComment = new MessageComment();
                 messageComment.setBody(obj.get("body").toString());
                 messageComment.setLink_title(obj.get("link_title").toString());

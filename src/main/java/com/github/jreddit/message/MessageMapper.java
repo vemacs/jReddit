@@ -1,6 +1,6 @@
 package com.github.jreddit.message;
 
-import org.json.simple.JSONObject;
+import com.google.gson.JsonObject;
 
 /**
  * Map a JSON response message to a Message class
@@ -15,7 +15,7 @@ public class MessageMapper {
      * @param jsonObject JSON object to map
      * @return <code>Message</code> object instance, or NULL if an error occurs during mapping
      */
-    public static Message mapMessage(JSONObject jsonObject) {
+    public static Message mapMessage(JsonObject jsonObject) {
         Message message = null;
 
         try {

@@ -7,8 +7,8 @@ import com.github.jreddit.utils.ApiEndpointUtils;
 import com.github.jreddit.utils.Kind;
 import com.github.jreddit.utils.restclient.HttpRestClient;
 import com.github.jreddit.utils.restclient.RestClient;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.io.IOException;
 
@@ -49,11 +49,11 @@ public class Submission extends Thing {
     }
 
     /**
-     * Create a Submission from a JSONObject
+     * Create a Submission from a JsonObject
      *
-     * @param obj The JSONObject to load Submission data from
+     * @param obj The JsonObject to load Submission data from
      */
-    public Submission(JSONObject obj) {
+    public Submission(JsonObject obj) {
 
         try {
             setKind(Kind.LINK);
@@ -203,13 +203,13 @@ public class Submission extends Thing {
      *
      * @param text The text to comment
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON parsing fails
+     * @throws JsonParseException If JSON parsing fails
      */
-    public void comment(String text) throws IOException, ParseException {
-        JSONObject object = (JSONObject) restClient.post("thing_id=" + fullName + "&text=" + text
+    public void comment(String text) throws IOException, JsonParseException {
+        JsonObject object = (JsonObject) restClient.post("thing_id=" + fullName + "&text=" + text
                 + "&uh=" + user.getModhash(), ApiEndpointUtils.SUBMISSION_COMMENT, user.getCookie()).getResponseObject();
 
-        if (object.toJSONString().contains(".error.USER_REQUIRED")) {
+        if (object.toString().contains(".error.USER_REQUIRED")) {
             throw new InvalidCookieException("Cookie not present");
         } else {
             System.out.println("Commented on thread id " + fullName
@@ -218,14 +218,14 @@ public class Submission extends Thing {
     }
 
     /** Mark a post as NSFW **/
-    public void markNSFW() throws IOException, ParseException {
+    public void markNSFW() throws IOException, JsonParseException {
         restClient.post(
                 "id=" + fullName + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_MARK_AS_NSFW, user.getCookie());
     }
 
     /** Unmark a post as NSFW **/
-    public void unmarkNSFW() throws IOException, ParseException {
+    public void unmarkNSFW() throws IOException, JsonParseException {
         restClient.post(
                 "id=" + fullName + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_UNMARK_AS_NSFW, user.getCookie());
@@ -235,15 +235,15 @@ public class Submission extends Thing {
      * This function upvotes this submission.
      *
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON parsing fails
+     * @throws JsonParseException If JSON parsing fails
      */
-    public void upVote() throws IOException, ParseException {
-        JSONObject object = voteResponse(1);
-        if (!(object.toJSONString().length() > 2)) {
+    public void upVote() throws IOException, JsonParseException {
+        JsonObject object = voteResponse(1);
+        if (!(object.toString().length() > 2)) {
             // Will return "{}"
             System.out.println("Successful upvote!");
         } else {
-            System.out.println(object.toJSONString());
+            System.out.println(object.toString());
         }
     }
 
@@ -251,15 +251,15 @@ public class Submission extends Thing {
      * This function downvotes this submission.
      *
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON parsing fails
+     * @throws JsonParseException If JSON parsing fails
      */
-    public void downVote() throws IOException, ParseException {
-        JSONObject object = voteResponse(-1);
-        if (!(object.toJSONString().length() > 2)) {
+    public void downVote() throws IOException, JsonParseException {
+        JsonObject object = voteResponse(-1);
+        if (!(object.toString().length() > 2)) {
             // Will return "{}"
             System.out.println("Successful downvote!");
         } else {
-            System.out.println(object.toJSONString());
+            System.out.println(object.toString());
         }
     }
 
@@ -268,9 +268,9 @@ public class Submission extends Thing {
      *
      * @param category - a category name
      * @throws IOException      If connection fails
-     * @throws ParseException   If JSON parsing fails
+     * @throws JsonParseException   If JSON parsing fails
      */
-    public void save(String category) throws IOException, ParseException {
+    public void save(String category) throws IOException, JsonParseException {
         restClient.post(
                 "category=" + category + "&id=" + fullName + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_SAVE, user.getCookie());
@@ -280,9 +280,9 @@ public class Submission extends Thing {
      * This function saves a submission with no category.
      *
      * @throws IOException      If connection fails
-     * @throws ParseException   If JSON parsing fails
+     * @throws JsonParseException   If JSON parsing fails
      */
-    public void save() throws IOException, ParseException {
+    public void save() throws IOException, JsonParseException {
         restClient.post(
                 "id=" + fullName + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_SAVE, user.getCookie());
@@ -292,9 +292,9 @@ public class Submission extends Thing {
      * This function unsaves a submission.
      *
      * @throws IOException      If connection fails
-     * @throws ParseException   If JSON parsing fails
+     * @throws JsonParseException   If JSON parsing fails
      */
-    public void unsave() throws IOException, ParseException {
+    public void unsave() throws IOException, JsonParseException {
         restClient.post(
                 "id=" + fullName + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_UNSAVE, user.getCookie());
@@ -303,9 +303,9 @@ public class Submission extends Thing {
     /**
      * This function hides a submission.
      * @throws IOException      If connection fails
-     * @throws ParseException   If JSON parsing fails
+     * @throws JsonParseException   If JSON parsing fails
      */
-    public void hide() throws IOException, ParseException {
+    public void hide() throws IOException, JsonParseException {
         restClient.post(
                 "id=" + fullName + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_HIDE, user.getCookie());
@@ -314,17 +314,17 @@ public class Submission extends Thing {
     /**
      * This function unhides a submission.
      * @throws IOException      If connection fails
-     * @throws ParseException   If JSON parsing fails
+     * @throws JsonParseException   If JSON parsing fails
      */
-    public void unhide() throws IOException, ParseException {
+    public void unhide() throws IOException, JsonParseException {
         restClient.post(
                 "id=" + fullName + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_UNHIDE, user.getCookie());
     }
 
     /** Upvote/downvote a submission */
-    private JSONObject voteResponse(int dir) throws IOException, ParseException {
-        return (JSONObject) restClient.post(
+    private JsonObject voteResponse(int dir) throws IOException, JsonParseException {
+        return (JsonObject) restClient.post(
                 "id=" + fullName + "&dir=" + dir + "&uh=" + user.getModhash(),
                 ApiEndpointUtils.SUBMISSION_VOTE, user.getCookie()).getResponseObject();
     }

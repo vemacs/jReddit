@@ -1,6 +1,6 @@
 package com.github.jreddit.user;
 
-import org.json.simple.JSONObject;
+import com.google.gson.JsonObject;
 
 /**
  * Encapsulates user information (regarding karma, emails, identifiers, statuses, created time and current modhash)
@@ -56,21 +56,21 @@ public class UserInfo {
 
     }
 
-    public UserInfo(JSONObject info) {
-        setHasMail((Boolean) info.get("has_mail"));
-        setHasModMail((Boolean) info.get("has_mod_mail"));
-        setCommentKarma((Long) info.get("comment_karma"));
-        setCreatedUTC((Double) info.get("created_utc"));
-        setGold((Boolean) info.get("is_gold"));
-        setLinkKarma((Long) info.get("link_karma"));
-        setMod((Boolean) info.get("is_mod"));
-        setFriend((Boolean) info.get("is_friend"));
-        setModhash((String) info.get("modhash"));
-        setHasVerifiedEmail((Boolean) info.get("has_verified_email"));
-        setId((String) info.get("id"));
-        setOver18((Boolean) info.get("over_18"));
-        setCreated((Double) info.get("created"));
-        setName((String) info.get("name"));
+    public UserInfo(JsonObject info) {
+        setHasMail(info.get("has_mail").getAsBoolean());
+        setHasModMail(info.get("has_mod_mail").getAsBoolean());
+        setCommentKarma(info.get("comment_karma").getAsLong());
+        setCreatedUTC(info.get("created_utc").getAsDouble());
+        setGold(info.get("is_gold").getAsBoolean());
+        setLinkKarma(info.get("link_karma").getAsLong());
+        setMod(info.get("is_mod").getAsBoolean());
+        setFriend(info.get("is_friend").getAsBoolean());
+        setModhash(info.get("modhash").getAsString());
+        setHasVerifiedEmail(info.get("has_verified_email").getAsBoolean());
+        setId(info.get("id").getAsString());
+        setOver18(info.get("over_18").getAsBoolean());
+        setCreated(info.get("created").getAsDouble());
+        setName(info.get("name").getAsString());
     }
 
     public String getId() {

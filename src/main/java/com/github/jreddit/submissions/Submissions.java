@@ -1,18 +1,19 @@
 package com.github.jreddit.submissions;
 
-import static com.github.jreddit.utils.restclient.JsonUtils.safeJsonToString;
 import com.github.jreddit.user.User;
 import com.github.jreddit.utils.ApiEndpointUtils;
 import com.github.jreddit.utils.PaginationResult;
 import com.github.jreddit.utils.restclient.RestClient;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.github.jreddit.utils.restclient.JsonUtils.safeJsonToString;
 
 /**
  * This class offers some submission utilities.
@@ -45,10 +46,10 @@ public class Submissions {
      * @param user       The user
      * @return The list containing submissions
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON parsing fails
+     * @throws JsonParseException If JSON parsing fails
      */
     public List<Submission> getSubmissions(String redditName,
-                       Popularity type, Page frontpage, User user) throws IOException, ParseException {
+                       Popularity type, Page frontpage, User user) throws IOException, JsonParseException {
 
         LinkedList<Submission> submissions = new LinkedList<Submission>();
         String urlString = "/r/" + redditName;
@@ -65,14 +66,14 @@ public class Submissions {
 
         urlString += ".json";
 
-        JSONObject object = (JSONObject)  restClient.get(urlString, user.getCookie()).getResponseObject();
-        JSONArray array = (JSONArray) ((JSONObject) object.get("data")).get("children");
+        JsonObject object = (JsonObject)  restClient.get(urlString, user.getCookie()).getResponseObject();
+        JsonArray array = (JsonArray) ((JsonObject) object.get("data")).get("children");
 
-        JSONObject data;
+        JsonObject data;
         Submission submission;
         for (Object anArray : array) {
-            data = (JSONObject) anArray;
-            data = ((JSONObject) data.get("data"));
+            data = (JsonObject) anArray;
+            data = ((JsonObject) data.get("data"));
             submission = new Submission(data);
             submission.setUser(user);
             submissions.add(submission);
@@ -97,18 +98,18 @@ public class Submissions {
             if (after != null)
                 endPoint += "?after=" + after;
 
-            JSONObject object = (JSONObject) restClient.get(endPoint, null);
-            JSONObject data = (JSONObject) object.get("data");
-            JSONArray children = (JSONArray) data.get("children");
+            JsonObject object = (JsonObject) restClient.get(endPoint, null).getResponseObject();
+            JsonObject data = (JsonObject) object.get("data");
+            JsonArray children = (JsonArray) data.get("children");
 
             result.setAfter( safeJsonToString( data.get("after") ) );
 
-            JSONObject obj;
+            JsonObject obj;
 
             for (Object aChildren : children) {
                 // Get the object containing the comment
-                obj = (JSONObject) aChildren;
-                obj = (JSONObject) obj.get("data");
+                obj = (JsonObject) aChildren;
+                obj = (JsonObject) obj.get("data");
                 //add a new Submission to the list
                 submissions.add(new Submission(obj));
             }

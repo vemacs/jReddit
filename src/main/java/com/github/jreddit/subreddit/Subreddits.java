@@ -2,10 +2,9 @@ package com.github.jreddit.subreddit;
 
 
 import com.github.jreddit.utils.ApiEndpointUtils;
-import com.github.jreddit.utils.restclient.HttpRestClient;
 import com.github.jreddit.utils.restclient.RestClient;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +33,10 @@ public class Subreddits {
         List<Subreddit> subreddits = null;
 
         try {
-            JSONObject object = (JSONObject)  restClient.get(ApiEndpointUtils.SUBREDDITS, null).getResponseObject();
-            JSONObject data = (JSONObject) object.get("data");
+            JsonObject object = (JsonObject)  restClient.get(ApiEndpointUtils.SUBREDDITS, null).getResponseObject();
+            JsonObject data = (JsonObject) object.get("data");
 
-            subreddits = constructList((JSONArray) data.get("children"));
+            subreddits = constructList((JsonArray) data.get("children"));
 
         } catch (Exception e) {
             System.out.println("Error retrieving subreddits");
@@ -57,11 +56,11 @@ public class Subreddits {
         List<Subreddit> subreddits = null;
 
         try {
-            JSONObject object =
-                    (JSONObject)  restClient.get(String.format(ApiEndpointUtils.SUBREDDITS_GET, subredditType.getValue()), null).getResponseObject();
-            JSONObject data = (JSONObject) object.get("data");
+            JsonObject object =
+                    (JsonObject)  restClient.get(String.format(ApiEndpointUtils.SUBREDDITS_GET, subredditType.getValue()), null).getResponseObject();
+            JsonObject data = (JsonObject) object.get("data");
 
-            subreddits = constructList((JSONArray) data.get("children"));
+            subreddits = constructList((JsonArray) data.get("children"));
 
         } catch (Exception e) {
             System.out.println("Error retrieving subreddits of type: " + subredditType.getValue());
@@ -93,19 +92,19 @@ public class Subreddits {
     }
 
     /**
-     * Creates a list of subreddits by interpreting a given <code>JSONArray</code> of subreddits.
+     * Creates a list of subreddits by interpreting a given <code>JsonArray</code> of subreddits.
      *
      * @param subredditJsonArray Array containing child nodes that form the list of subreddits.
      * @return A <code>List</code> of Subreddit objects
      */
-    private static List<Subreddit> constructList(JSONArray subredditJsonArray) {
+    private static List<Subreddit> constructList(JsonArray subredditJsonArray) {
         List<Subreddit> subreddits = new ArrayList<Subreddit>();
-        JSONObject subredditJsonObject;
+        JsonObject subredditJsonObject;
         Subreddit subreddit;
 
         for (Object object : subredditJsonArray) {
-            subredditJsonObject = (JSONObject) object;
-            subredditJsonObject = (JSONObject) subredditJsonObject.get("data");
+            subredditJsonObject = (JsonObject) object;
+            subredditJsonObject = (JsonObject) subredditJsonObject.get("data");
 
             subreddit = new Subreddit();
             subreddit.setCreated(subredditJsonObject.get("created").toString());

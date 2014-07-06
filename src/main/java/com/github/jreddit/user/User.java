@@ -10,9 +10,9 @@ import com.github.jreddit.utils.ApiEndpointUtils;
 import com.github.jreddit.utils.Sort;
 import com.github.jreddit.utils.restclient.Response;
 import com.github.jreddit.utils.restclient.RestClient;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,25 +77,25 @@ public class User extends Thing {
      * @param link      The link to the submission
      * @param subreddit The subreddit to submit to
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON Parsing fails
+     * @throws JsonParseException If JSON Parsing fails
      */
     public void submitLink(String title, String link, String subreddit)
-            throws IOException, ParseException {
-        JSONObject object = submit(title, link, false, subreddit);
-        if (object.toJSONString().contains(".error.USER_REQUIRED")) {
+            throws IOException, JsonParseException {
+        JsonObject object = submit(title, link, false, subreddit);
+        if (object.toString().contains(".error.USER_REQUIRED")) {
             System.err.println("Please login first.");
         }
-        else if (object.toJSONString().contains(
+        else if (object.toString().contains(
                 ".error.RATELIMIT.field-ratelimit")) {
             System.err.println("You are doing that too much.");
         }
-        else if (object.toJSONString().contains(
+        else if (object.toString().contains(
                 ".error.ALREADY_SUB.field-url")) {
             System.err.println("That link has already been submitted.");
         }
         else {
             System.out.println("Link submitted to "
-                    + ((JSONArray) ((JSONArray) ((JSONArray) object.get("jquery")).get(16)).get(3)).get(0));
+                    + ((JsonArray) ((JsonArray) ((JsonArray) object.get("jquery")).get(16)).get(3)).get(0));
         }
     }
 
@@ -107,25 +107,25 @@ public class User extends Thing {
      * @param text      The text of the submission
      * @param subreddit The subreddit to submit to
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON Parsing fails
+     * @throws JsonParseException If JSON Parsing fails
      */
     public void submitSelfPost(String title, String text, String subreddit)
-            throws IOException, ParseException {
-        JSONObject object = submit(title, text, true, subreddit);
-        if (object.toJSONString().contains(".error.USER_REQUIRED")) {
+            throws IOException, JsonParseException {
+        JsonObject object = submit(title, text, true, subreddit);
+        if (object.toString().contains(".error.USER_REQUIRED")) {
             System.err.println("Please login first.");
         }
-        else if (object.toJSONString().contains(
+        else if (object.toString().contains(
                 ".error.RATELIMIT.field-ratelimit")) {
             System.err.println("You are doing that too much.");
         }
-        else if (object.toJSONString().contains(
+        else if (object.toString().contains(
                 ".error.ALREADY_SUB.field-url")) {
             System.err.println("That link has already been submitted.");
         }
         else {
             System.out.println("Self post submitted to "
-                    + ((JSONArray) ((JSONArray) ((JSONArray) object.get("jquery")).get(10)).get(3)).get(0));
+                    + ((JsonArray) ((JsonArray) ((JsonArray) object.get("jquery")).get(10)).get(3)).get(0));
         }
     }
 
@@ -136,17 +136,17 @@ public class User extends Thing {
      * @param currentPassword	Current password
      * @param newPassword	New password
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON Parsing fails
+     * @throws JsonParseException If JSON Parsing fails
      */
     public void changePassword(String currentPassword, String newPassword)
-            throws IOException, ParseException {
-        JSONObject object = (JSONObject) update(currentPassword, "", newPassword).getResponseObject();
-        if (object.toJSONString().contains(".error.USER_REQUIRED")) {
+            throws IOException, JsonParseException {
+        JsonObject object = (JsonObject) update(currentPassword, "", newPassword).getResponseObject();
+        if (object.toString().contains(".error.USER_REQUIRED")) {
             System.err.println("Please login first.");
-        } else if (object.toJSONString().contains(
+        } else if (object.toString().contains(
                 ".error.RATELIMIT.field-ratelimit")) {
             System.err.println("You are doing that too much.");
-        } else if (object.toJSONString().contains(
+        } else if (object.toString().contains(
                 ".error.BAD_PASSWORD")) {
             System.err.println("Current password is bad.");
         } else {
@@ -162,10 +162,10 @@ public class User extends Thing {
      * @param email		New e-mail address (can be empty)
      * @param newPassword		New password
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON Parsing fails
+     * @throws JsonParseException If JSON Parsing fails
      */
     public Response update(String currentPassword, String email, String newPassword)
-            throws IOException, ParseException {
+            throws IOException, JsonParseException {
     	 return restClient.post("api_type=json&curpass=" + currentPassword + "&dest=http://reddit.com/" + (!email.equals("") ? "&email=" + email : "")
                 + (!newPassword.equals("") ? "&newpass=" + newPassword + "&verpass=" + newPassword : "")
                 + "&uh=" + getModhash(),
@@ -180,14 +180,14 @@ public class User extends Thing {
      * @param password The password
      * @return An array containing a modhash and cookie
      * @throws IOException    If connection fails
-     * @throws ParseException If parsing JSON fails
+     * @throws JsonParseException If parsing JSON fails
      */
     private ArrayList<String> hashCookiePair(String username, String password)
-            throws IOException, ParseException {
+            throws IOException, JsonParseException {
         ArrayList<String> values = new ArrayList<String>();
-        JSONObject jsonObject = (JSONObject) restClient.post("api_type=json&user=" + username
+        JsonObject jsonObject = (JsonObject) restClient.post("api_type=json&user=" + username
                 + "&passwd=" + password, String.format(ApiEndpointUtils.USER_LOGIN, username), getCookie()).getResponseObject();
-        JSONObject valuePair = (JSONObject) ((JSONObject) jsonObject.get("json")).get("data");
+        JsonObject valuePair = (JsonObject) ((JsonObject) jsonObject.get("json")).get("data");
 
         values.add(valuePair.get("modhash").toString());
         values.add(valuePair.get("cookie").toString());
@@ -207,8 +207,8 @@ public class User extends Thing {
             return null;
         }
 
-        JSONObject jsonObject = (JSONObject) restClient.get(ApiEndpointUtils.USER_INFO, getCookie()).getResponseObject();
-        JSONObject info = (JSONObject) jsonObject.get("data");
+        JsonObject jsonObject = (JsonObject) restClient.get(ApiEndpointUtils.USER_INFO, getCookie()).getResponseObject();
+        JsonObject info = (JsonObject) jsonObject.get("data");
 
         return new UserInfo(info);
     }
@@ -222,8 +222,8 @@ public class User extends Thing {
     public UserInfo about(String username) {
 
         // Send GET request to get the account overview
-        JSONObject object = (JSONObject) restClient.get(String.format(ApiEndpointUtils.USER_ABOUT, username), null).getResponseObject();
-        JSONObject data = (JSONObject) object.get("data");
+        JsonObject object = (JsonObject) restClient.get(String.format(ApiEndpointUtils.USER_ABOUT, username), null).getResponseObject();
+        JsonObject data = (JsonObject) object.get("data");
 
         // Init account info wrapper
         return data != null ? new UserInfo(data) : null;
@@ -236,12 +236,12 @@ public class User extends Thing {
      * @param linkOrText The link of the submission or text
      * @param selfPost   If this submission is a self post
      * @param subreddit  Which subreddit to submit this to
-     * @return A JSONObject
+     * @return A JsonObject
      * @throws IOException    If connection fails
-     * @throws ParseException If JSON parsing fails
+     * @throws JsonParseException If JSON parsing fails
      */
-    private JSONObject submit(String title, String linkOrText, boolean selfPost, String subreddit) throws IOException, ParseException {
-        return (JSONObject) restClient.post("title=" + title + "&" + (selfPost ? "text" : "url")
+    private JsonObject submit(String title, String linkOrText, boolean selfPost, String subreddit) throws IOException, JsonParseException {
+        return (JsonObject) restClient.post("title=" + title + "&" + (selfPost ? "text" : "url")
                 + "=" + linkOrText + "&sr=" + subreddit + "&kind="
                 + (selfPost ? "self" : "link") + "&uh=" + getModhash(),
                 ApiEndpointUtils.USER_SUBMIT, getCookie()).getResponseObject();
@@ -272,16 +272,16 @@ public class User extends Thing {
         List<Submission> submissions = new ArrayList<Submission>(500);
         try {
             // Send GET request to get the account overview
-            JSONObject object = (JSONObject) restClient.get(String.format(ApiEndpointUtils.USER_SUBMISSIONS, username), null).getResponseObject();
-            JSONObject data = (JSONObject) object.get("data");
-            JSONArray children = (JSONArray) data.get("children");
+            JsonObject object = (JsonObject) restClient.get(String.format(ApiEndpointUtils.USER_SUBMISSIONS, username), null).getResponseObject();
+            JsonObject data = (JsonObject) object.get("data");
+            JsonArray children = (JsonArray) data.get("children");
 
-            JSONObject obj;
+            JsonObject obj;
 
             for (Object aChildren : children) {
                 // Get the object containing the comment
-                obj = (JSONObject) aChildren;
-                obj = (JSONObject) obj.get("data");
+                obj = (JsonObject) aChildren;
+                obj = (JsonObject) obj.get("data");
                 //add a new Submission to the list
                 submissions.add(new Submission(obj));
             }
@@ -421,16 +421,16 @@ public class User extends Thing {
         //if we got this far, the location is valid
         List<Submission> submissions = new ArrayList<Submission>();
         try {
-            JSONObject object =
-                    (JSONObject) restClient.get(String.format(ApiEndpointUtils.USER_SUBMISSIONS_INTERACTION,
+            JsonObject object =
+                    (JsonObject) restClient.get(String.format(ApiEndpointUtils.USER_SUBMISSIONS_INTERACTION,
                             username, where, sort.getValue()), cookie).getResponseObject();
-            JSONObject data = (JSONObject) object.get("data");
-            JSONArray children = (JSONArray) data.get("children");
+            JsonObject data = (JsonObject) object.get("data");
+            JsonArray children = (JsonArray) data.get("children");
 
-            JSONObject obj;
+            JsonObject obj;
             for (Object aChildren : children) {
-                obj = (JSONObject) aChildren;
-                obj = (JSONObject) obj.get("data");
+                obj = (JsonObject) aChildren;
+                obj = (JsonObject) obj.get("data");
                 submissions.add(new Submission(obj));
             }
         }
@@ -447,14 +447,14 @@ public class User extends Thing {
      */
     public List<Subreddit> getSubscribed() {
         List<Subreddit> subscribed = new ArrayList<Subreddit>(1000);
-        JSONObject object = (JSONObject) restClient.get(ApiEndpointUtils.USER_GET_SUBSCRIBED, cookie).getResponseObject();
+        JsonObject object = (JsonObject) restClient.get(ApiEndpointUtils.USER_GET_SUBSCRIBED, cookie).getResponseObject();
 
-        JSONObject rawData = (JSONObject) object.get("data");
-        JSONArray subreddits = (JSONArray) rawData.get("children");
+        JsonObject rawData = (JsonObject) object.get("data");
+        JsonArray subreddits = (JsonArray) rawData.get("children");
 
         for (Object subreddit : subreddits) {
-            JSONObject obj = (JSONObject) subreddit;
-            obj = (JSONObject) obj.get("data");
+            JsonObject obj = (JsonObject) subreddit;
+            obj = (JsonObject) obj.get("data");
             Subreddit sub = new Subreddit(obj.get("display_name").toString(),
                     obj.get("display_name").toString(), obj.get("title").toString(),
                     obj.get("url").toString(), obj.get("created").toString(),

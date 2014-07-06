@@ -6,8 +6,8 @@ import com.github.jreddit.utils.ApiEndpointUtils;
 import com.github.jreddit.utils.Kind;
 import com.github.jreddit.utils.restclient.Response;
 import com.github.jreddit.utils.restclient.RestClient;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,19 +48,19 @@ public class Comments {
         List<Comment> comments = new ArrayList<Comment>(500);
 
         try {
-            JSONObject object = (JSONObject) restClient.get(String.format(ApiEndpointUtils.USER_COMMENTS,
-                    username, commentSort.getValue()), null);
+            JsonObject object = (JsonObject) restClient.get(String.format(ApiEndpointUtils.USER_COMMENTS,
+                    username, commentSort.getValue()), null).getResponseObject();
 
             if (object != null) {
-                JSONObject data = (JSONObject) object.get("data");
-                JSONArray children = (JSONArray) data.get("children");
+                JsonObject data = (JsonObject) object.get("data");
+                JsonArray children = (JsonArray) data.get("children");
 
-                JSONObject obj;
+                JsonObject obj;
                 Comment comment;
                 for (Object aChildren : children) {
                     // Get the object containing the comment
-                    obj = (JSONObject) aChildren;
-                    obj = (JSONObject) obj.get("data");
+                    obj = (JsonObject) aChildren;
+                    obj = (JsonObject) obj.get("data");
 
                     // Create a new comment
                     comment = CommentMapper.mapMessage(obj);
@@ -119,20 +119,20 @@ public class Comments {
 
             // The Response Object is an array of 2 elements:
             // the first contains details about the post, while the second the Comments we are interested in
-            JSONObject data = (JSONObject) ((JSONArray) response.getResponseObject()).get(1);
+            JsonObject data = (JsonObject) ((JsonArray) response.getResponseObject()).get(1);
 
             // The data is a map that holds on the first child the actual data and on the second the kind of the data (i.e. Listing)
-            JSONArray children = (JSONArray) ((JSONObject) data.get("data")).get("children");
+            JsonArray children = (JsonArray) ((JsonObject) data.get("data")).get("children");
 
-            JSONObject obj;
+            JsonObject obj;
             for (Object aChildren : children) {
 
                 // Get the object containing the comment
-                obj = (JSONObject) aChildren;
+                obj = (JsonObject) aChildren;
 
                 // We are only interested in comments
-                if (obj.get("kind").equals(Kind.COMMENT.getValue())) {
-                    obj = (JSONObject) obj.get("data");
+                if (obj.get("kind").getAsString().equals(Kind.COMMENT.getValue())) {
+                    obj = (JsonObject) obj.get("data");
 
                     // Create a new comment and add it to the submissions list
                     comments.add(CommentMapper.mapMessage(obj));
